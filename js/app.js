@@ -13,6 +13,7 @@ import { critters } from "./data/critters.js";
 import { renderCollection } from "./ui/collection.js";
 import { renderLog } from "./ui/runlog.js";
 import { showTab } from "./ui/screens.js";
+import { unlockAudio, playFocusAlarm, playRestAlarm } from "./core/sound.js";
 
 const state = loadState();
 
@@ -443,6 +444,7 @@ function completeRestRun() {
 
 function handleTimerComplete(completedPhase) {
   if (completedPhase === "action") {
+    playFocusAlarm();
     const action = state.timer.selectedAction;
 
     if (action === "explore") {
@@ -468,6 +470,7 @@ function handleTimerComplete(completedPhase) {
     };
   }
 
+  playRestAlarm();
   return completeRestRun();
 }
 
@@ -476,6 +479,8 @@ function startSelectedAction(action) {
     setNotice("Pause or reset the current timer before starting a new action.");
     return;
   }
+
+  unlockAudio();
 
   if (action === "explore" && state.resources.nectar < EXPLORE_COST) {
     setNotice(`Not enough Nectar. Explore requires ${EXPLORE_COST}.`);
@@ -518,6 +523,8 @@ function handlePauseResume() {
     setNotice("Paused.");
     return;
   }
+
+  unlockAudio();
 
   setNotice(
     timerState.phase === "rest"

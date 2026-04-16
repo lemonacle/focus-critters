@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Focus Critters - Test Build</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Critters - Test Build</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="wrap">
   <div class="title">Focus Critters</div>
-  <div class="subtitle">Default: 25-minute focus, 5-minute rest.</div>
+  <div class="subtitle">Choose an action to begin your next run.</div>
 
   <div class="card">
-    <div id="modeLabel" class="timer-mode">Focus Session</div>
-    <div id="timer" class="timer">25:00</div>
-    <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+    <div id="actionPicker" class="action-picker">
+      <div class="section-head">
+        <div>
+          <div style="font-weight:700;">Choose Action</div>
+          <div class="small">Each action affects your progress differently.</div>
+        </div>
+      </div>
 
-    <div class="btn-row">
-      <button id="startBtn">Start</button>
-      <button id="pauseBtn" class="secondary">Pause</button>
-      <button id="resetBtn" class="blue">Reset</button>
-      <button id="skipBtn" class="yellow">Skip</button>
+      <div class="action-btn-row">
+        <button id="exploreBtn" class="action-btn explore-btn" type="button">Explore</button>
+        <button id="extractBtn" class="action-btn extract-btn" type="button">Extract</button>
+        <button id="expandBtn" class="action-btn expand-btn" type="button">Expand</button>
+      </div>
     </div>
+
+    <div id="timerPanel" class="timer-panel is-hidden">
+      <div id="modeLabel" class="timer-mode">Explore Run</div>
+      <div id="timer" class="timer">25:00</div>
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <div class="btn-row">
+        <button id="pauseBtn" class="secondary" type="button">Pause</button>
+        <button id="resetBtn" class="blue" type="button">Reset</button>
+        <button id="skipBtn" class="yellow" type="button">Skip</button>
+      </div>
+    </div>
+
     <div id="notice" class="notice"></div>
   </div>
 
@@ -29,25 +48,25 @@
     <div class="section-head section-head-toggle">
       <div>
         <div style="font-weight:700;">Round Settings</div>
-        <div class="small">Focus/rest change in 5-minute steps. Cycles change by 1.</div>
+        <div class="small">Action/rest change in 5-minute steps. Cycles change by 1.</div>
       </div>
-  
+
       <button id="toggleRoundSettingsBtn" class="secondary toggle-btn" type="button" aria-expanded="true">
         Hide
       </button>
     </div>
-  
+
     <div id="roundSettingsBody" class="round-settings-body">
       <div class="controls-grid">
         <div class="control-row">
-          <div class="control-label">Focus</div>
+          <div class="control-label">Action</div>
           <div id="focusDurationValue" class="control-value">25:00</div>
           <div class="stepper">
             <button id="focusMinusBtn" type="button">−5m</button>
             <button id="focusPlusBtn" type="button">+5m</button>
           </div>
         </div>
-  
+
         <div class="control-row">
           <div class="control-label">Rest</div>
           <div id="restDurationValue" class="control-value">05:00</div>
@@ -56,7 +75,7 @@
             <button id="restPlusBtn" type="button">+5m</button>
           </div>
         </div>
-  
+
         <div class="control-row">
           <div class="control-label">Cycles</div>
           <div id="cycleTargetValue" class="control-value">1</div>
@@ -65,7 +84,7 @@
             <button id="cyclePlusBtn" type="button">+1</button>
           </div>
         </div>
-  
+
         <div class="control-row">
           <div class="control-label">Remaining</div>
           <div id="cycleRemainingValue" class="control-value">1</div>
@@ -82,12 +101,12 @@
         <div class="label">Nectar</div>
       </div>
       <div class="stat">
-        <div class="num" id="runsStat">0</div>
-        <div class="label">Focus Runs</div>
+        <div class="num" id="materialsStat">0</div>
+        <div class="label">Materials</div>
       </div>
       <div class="stat">
-        <div class="num" id="ownedStat">0/100</div>
-        <div class="label">Collected</div>
+        <div class="num" id="ownedStat">0</div>
+        <div class="label">Unique Critters</div>
       </div>
       <div class="stat">
         <div class="num" id="restStat">0</div>
@@ -98,26 +117,15 @@
 
   <div class="card">
     <div class="tabs">
-      <button class="tab-btn active" data-tab="shop">Shop</button>
-      <button class="tab-btn" data-tab="collection">Collection</button>
+      <button class="tab-btn active" data-tab="collection">Stable</button>
       <button class="tab-btn" data-tab="log">Run Log</button>
     </div>
 
-    <div id="shop" class="tab active">
+    <div id="collection" class="tab active">
       <div class="section-head">
         <div>
-          <div style="font-weight:700;">Critter Shop</div>
-          <div class="small">Every critter costs 10 Nectar in this testing build.</div>
-        </div>
-      </div>
-      <div id="shopGrid" class="grid"></div>
-    </div>
-
-    <div id="collection" class="tab">
-      <div class="section-head">
-        <div>
-          <div style="font-weight:700;">Your Collection</div>
-          <div class="small">Owned critters appear here.</div>
+          <div style="font-weight:700;">Your Stable</div>
+          <div class="small">Critters you find during Explore appear here.</div>
         </div>
       </div>
       <div id="collectionGrid" class="grid"></div>
@@ -127,7 +135,7 @@
       <div class="section-head">
         <div>
           <div style="font-weight:700;">Run Log</div>
-          <div class="small">Recent focus and rest events.</div>
+          <div class="small">Recent Explore, Extract, Expand, and Rest events.</div>
         </div>
       </div>
       <div id="logList" class="log"></div>

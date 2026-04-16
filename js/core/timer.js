@@ -1,42 +1,53 @@
-export const DEFAULT_FOCUS_SECONDS = 1500;
+export const DEFAULT_ACTION_SECONDS = 1500;
 export const DEFAULT_REST_SECONDS = 300;
 export const MIN_TIMER_SECONDS = 300;
 
 let timer = null;
-let mode = "focus";
-let focusSeconds = DEFAULT_FOCUS_SECONDS;
+let phase = "action"; // "action" | "rest"
+let selectedAction = null; // "explore" | "extract" | "expand" | null
+let actionSeconds = DEFAULT_ACTION_SECONDS;
 let restSeconds = DEFAULT_REST_SECONDS;
-let totalTime = focusSeconds;
-let timeLeft = focusSeconds;
+let totalTime = actionSeconds;
+let timeLeft = actionSeconds;
 
 function clampSeconds(seconds) {
   return Math.max(MIN_TIMER_SECONDS, Math.floor(seconds));
 }
 
-function getDurationForMode(targetMode) {
-  return targetMode === "focus" ? focusSeconds : restSeconds;
+function getDurationForPhase(targetPhase) {
+  return targetPhase === "action" ? actionSeconds : restSeconds;
 }
 
-function setPhase(targetMode) {
-  mode = targetMode;
-  totalTime = getDurationForMode(targetMode);
+function setPhase(targetPhase, nextSelectedAction = selectedAction) {
+  phase = targetPhase;
+  selectedAction = targetPhase === "action" ? nextSelectedAction : null;
+  totalTime = getDurationForPhase(targetPhase);
   timeLeft = totalTime;
 }
 
 export function configureTimer(config = {}) {
-  if (typeof config.focusSeconds === "number") {
-    focusSeconds = clampSeconds(config.focusSeconds);
+  if (typeof config.actionSeconds === "number") {
+    actionSeconds = clampSeconds(config.actionSeconds);
   }
 
   if (typeof config.restSeconds === "number") {
     restSeconds = clampSeconds(config.restSeconds);
   }
 
-  if (config.mode === "focus" || config.mode === "rest") {
-    mode = config.mode;
+  if (config.phase === "action" || config.phase === "rest") {
+    phase = config.phase;
   }
 
-  totalTime = getDurationForMode(mode);
+  if (
+    config.selectedAction === "explore" ||
+    config.selectedAction === "extract" ||
+    config.selectedAction === "expand" ||
+    config.selectedAction === null
+  ) {
+    selectedAction = phase === "action" ? config.selectedAction : null;
+  }
+
+  totalTime = getDurationForPhase(phase);
 
   if (typeof config.timeLeft === "number") {
     timeLeft = Math.min(clampSeconds(config.timeLeft), totalTime);
@@ -47,11 +58,12 @@ export function configureTimer(config = {}) {
 
 export function getTimerState() {
   return {
-    mode,
+    phase,
+    selectedAction,
     totalTime,
     timeLeft,
     running: timer !== null,
-    focusSeconds,
+    actionSeconds,
     restSeconds
   };
 }
@@ -70,19 +82,35 @@ export function startTimer(onTick, onPhaseComplete) {
       return;
     }
 
-    const completedMode = mode;
-    const result = onPhaseComplete ? onPhaseComplete(completedMode, getTimerState()) : {};
-    const nextMode =
-      result && (result.nextMode === "focus" || result.nextMode === "rest")
-        ? result.nextMode
-        : completedMode === "focus"
+    const completedPhase = phase;
+    const completedAction = selectedAction;
+
+    const result = onPhaseComplete
+      ? onPhaseComplete(completedPhase, getTimerState())
+      : {};
+
+    const nextPhase =
+      result && (result.nextPhase === "action" || result.nextPhase === "rest")
+        ? result.nextPhase
+        : completedPhase === "action"
           ? "rest"
-          : "focus";
+          : "action";
+
+    const nextSelectedAction =
+      result &&
+      (result.nextSelectedAction === "explore" ||
+        result.nextSelectedAction === "extract" ||
+        result.nextSelectedAction === "expand" ||
+        result.nextSelectedAction === null)
+        ? result.nextSelectedAction
+        : completedPhase === "rest"
+          ? completedAction
+          : completedAction;
 
     if (result && result.stop === true) {
       clearInterval(timer);
       timer = null;
-      setPhase(nextMode);
+      setPhase(nextPhase, nextSelectedAction);
 
       if (onTick) {
         onTick(getTimerState());
@@ -91,7 +119,7 @@ export function startTimer(onTick, onPhaseComplete) {
       return;
     }
 
-    setPhase(nextMode);
+    setPhase(nextPhase, nextSelectedAction);
 
     if (onTick) {
       onTick(getTimerState());
@@ -108,13 +136,18 @@ export function pauseTimer() {
 
 export function resetCurrentTimer() {
   pauseTimer();
-  totalTime = getDurationForMode(mode);
+  totalTime = getDurationForPhase(phase);
   timeLeft = totalTime;
 }
 
-export function resetToFocus() {
+export function resetToAction(nextSelectedAction = null) {
   pauseTimer();
-  setPhase("focus");
+  setPhase("action", nextSelectedAction);
+}
+
+export function resetToRest() {
+  pauseTimer();
+  setPhase("rest", null);
 }
 
 export function skipPhase() {

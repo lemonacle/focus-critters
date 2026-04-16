@@ -1,145 +1,148 @@
 # Focus Critters — Project Context
 
-Focus Critters is a lightweight gamified Pomodoro-style focus timer.
+Focus Critters is a lightweight gamified focus timer built as a browser-based application.
 
-The goal of the project is to create a simple productivity tool that rewards completed focus sessions with collectible emoji-based creatures.
+The project combines a Pomodoro-style timer with simple resource collection and creature discovery mechanics.
 
 The application is intentionally designed to be:
 
-- lightweight
-- offline-first
-- installable as a PWA
-- modular for easy iteration
+* lightweight
+* offline-first
+* modular
+* fast to load
+* easy to run on any device
 
 ---
 
 # Core Gameplay Loop
 
-1. User starts a focus session
-2. Timer counts down
-3. Completing focus grants **+10 Nectar**
-4. The timer automatically proceeds to the rest session
-5. Completing rest advances the cycle count
-6. When all cycles complete, the round resets to the user’s saved cycle preference
-7. Nectar can be spent in the shop
-8. Purchased Critters appear in the Collection
-9. Activity appears in the Run Log
-10. Game state and timer preferences persist via localStorage
+1. User selects an action: Explore, Extract, or Expand
+2. A focus timer begins
+3. On completion, rewards are granted based on the action
+4. The app transitions to a rest phase
+5. Completing rest reduces remaining cycles
+6. When cycles reach 0, the round resets
+7. Progress is saved automatically
 
 ---
 
-# Current Default Values
+# Actions System
 
-Focus duration: **25 minutes**
+## Explore
 
-Rest duration: **5 minutes**
+* Primary progression mechanic
+* Used to discover critters
 
-Timer adjustment step: **5 minutes**
+## Extract
 
-Cycle adjustment step: **1**
+* Generates Nectar
 
-Critter cost: **10 Nectar**
+## Expand
 
----
-
-# Timer System
-
-The timer supports:
-
-- configurable focus duration
-- configurable rest duration
-- automatic focus → rest progression
-- configurable cycle count
-- cycle countdown tracking
-- skip behavior that sets the current timer to **5 seconds remaining**
-
-Timer durations are stored in seconds internally.
+* Generates Materials
 
 ---
 
-# Settings Panel
+# Resources
 
-The "Round Settings" panel allows the user to configure:
+## Nectar
 
-- focus duration
-- rest duration
-- cycle count
+* Earned through Extract
+* Used for future progression systems
 
-The panel is collapsible and the collapsed state is persisted.
+## Materials
 
----
-
-# Game State Model
-
-The application stores the following state in localStorage:
-
-```
-{
-  nectar: number,
-  focusRuns: number,
-  restRuns: number,
-  owned: string[],
-  log: [
-    {
-      text: string,
-      time: string
-    }
-  ],
-  focusDuration: number,
-  restDuration: number,
-  cycleTarget: number,
-  cyclesRemaining: number,
-  roundSettingsCollapsed: boolean
-}
-```
+* Earned through Expand
+* Used for upgrades (planned)
 
 ---
 
 # Critters
 
-There are currently **100 emoji critters** available.
+* 100 emoji-based critters
+* Obtained through Explore
+* Stored in owned collection
 
-Each critter:
+Future direction:
 
-- costs **10 Nectar**
-- can only be purchased once
-- appears in the collection after purchase
+* duplicates allowed
+* rarity tiers
+* passive bonuses
 
 ---
 
-# Data Persistence
+# Timer System
 
-All progress is saved using:
+* Focus + Rest loop
+* Adjustable durations (5-minute steps)
+* Adjustable cycle count
+* Pause, Reset, Skip supported
+* Skip sets timer to ~5 seconds remaining
 
-```
-localStorage
-```
+---
+
+# UI Flow
+
+* Action buttons shown first
+* Timer hidden until action is selected
+* Timer controls shown dynamically
+
+---
+
+# State Model
+
+{
+nectar: number,
+materials: number,
+focusRuns: number,
+restRuns: number,
+owned: string[],
+log: [
+{
+text: string,
+time: string
+}
+],
+focusDuration: number,
+restDuration: number,
+cycleTarget: number,
+cyclesRemaining: number,
+roundSettingsCollapsed: boolean
+}
+
+---
+
+# Persistence
+
+Stored using localStorage
 
 Key:
-
-```
 focusCrittersEmojiTestV1
-```
 
-This includes:
+Includes:
 
-- nectar balance
-- owned critters
-- run log
-- timer settings
-- cycle settings
-- UI state
+* resources
+* critters
+* timer settings
+* cycles
+* UI state
+* run log
+
+---
+
+# Current Focus
+
+* action-based gameplay loop
+* critter discovery system
+* improving feedback clarity
 
 ---
 
 # Planned Features
 
-Future improvements being considered:
-
-- Google Drive save slots
-- PWA installation
-- daily streak system
-- critter rarity tiers
-- shop rotation system
-- sound cues
-- small animations
+* critter passives
+* rarity tiers
+* upgrade systems
+* Google Drive save slots
+* PWA installability
+* improved sound feedback

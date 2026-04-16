@@ -1,53 +1,39 @@
 # Focus Critters — Architecture
 
-Focus Critters is structured as a modular JavaScript application.
-
-The architecture separates responsibilities into core logic, UI rendering, and application coordination.
+Focus Critters is a modular browser-based JavaScript application.
 
 ---
 
-# Application Layers
+# High-Level Structure
 
-The application follows a simple layered model:
-
-```
-UI modules
-   ↓
-app.js
-   ↓
-core systems
-   ↓
-storage
-```
+UI Modules
+↓
+app.js (controller)
+↓
+Core Systems
+↓
+Storage
 
 ---
 
 # File Structure
 
-```
 focus-critters/
 
 index.html
 styles.css
 
 js/
-
-  app.js
-
-  core/
-    timer.js
-    storage.js
-    nectar.js
-
-  data/
-    critters.js
-
-  ui/
-    shop.js
-    collection.js
-    runlog.js
-    screens.js
-```
+app.js
+core/
+timer.js
+storage.js
+data/
+critters.js
+ui/
+collection.js
+runlog.js
+screens.js
 
 ---
 
@@ -55,177 +41,120 @@ js/
 
 ## timer.js
 
-Responsible for:
-
-- timer countdown
-- focus/rest phase switching
-- cycle-aware round progression
-- timer state reporting
-- skip behavior (sets current phase to 5 seconds remaining)
-
-Timer durations are stored in seconds.
-
----
+* countdown logic
+* focus/rest switching
+* cycle tracking
+* skip behavior
 
 ## storage.js
 
-Handles all persistence.
-
-Responsibilities:
-
-- loading saved state
-- merging saved state with default values
-- saving state updates
-- exporting/importing saves
-
-Data is stored in:
-
-```
-localStorage
-```
+* load state
+* save state
+* persistence via localStorage
 
 Key:
-
-```
 focusCrittersEmojiTestV1
-```
-
----
-
-## nectar.js
-
-Handles game reward logic.
-
-Responsibilities:
-
-- awarding nectar for completed focus sessions
-- tracking focus and rest run counts
-- critter purchase validation
-- updating owned critters
 
 ---
 
 # UI Modules
 
-UI modules are responsible only for rendering interface elements.
-
-They do not contain gameplay logic.
-
----
-
-## shop.js
-
-Renders the Critter shop grid.
-
-Displays:
-
-- critter emoji
-- name
-- purchase button
-- owned state
-
----
-
 ## collection.js
 
-Displays the player’s owned critters.
-
-Only critters that have been purchased appear here.
-
----
+* renders owned critters
 
 ## runlog.js
 
-Displays the most recent activity events including:
-
-- focus completion
-- rest completion
-- critter purchases
-
----
+* renders activity log 
 
 ## screens.js
 
-Handles tab switching between:
-
-- Shop
-- Collection
-- Run Log
+* handles tab switching 
 
 ---
 
-# Application Coordinator
+# Application Controller
 
 ## app.js
 
-`app.js` acts as the central controller.
+Central coordinator responsible for:
 
-Responsibilities include:
-
-- initializing the application
-- binding UI event listeners
-- coordinating timer behavior
-- managing cycle countdown logic
-- synchronizing state with UI
-- handling settings panel visibility
-- persisting state updates
+* initializing state
+* handling action selection
+* controlling timer
+* applying rewards
+* updating UI
+* saving state
 
 ---
 
-# Timer Flow
+# UI Flow
 
-The timer operates as a state machine:
+From index.html :
 
-```
-Focus
-  ↓
-Rest
-  ↓
-Cycle countdown
-  ↓
-Next focus
-```
-
-When `cyclesRemaining` reaches zero:
-
-- the round ends
-- cycle count resets to `cycleTarget`
-- the timer returns to the focus phase
+1. User selects action
+2. Timer panel appears
+3. Timer runs
+4. Controls update dynamically
+5. Rewards applied on completion
 
 ---
 
 # State Model
 
-The application state is stored as:
-
-```
 {
-  nectar: number,
-  focusRuns: number,
-  restRuns: number,
-  owned: string[],
-  log: [
-    {
-      text: string,
-      time: string
-    }
-  ],
-  focusDuration: number,
-  restDuration: number,
-  cycleTarget: number,
-  cyclesRemaining: number,
-  roundSettingsCollapsed: boolean
+nectar: number,
+materials: number,
+focusRuns: number,
+restRuns: number,
+owned: string[],
+log: [
+{
+text: string,
+time: string
 }
-```
+],
+focusDuration: number,
+restDuration: number,
+cycleTarget: number,
+cyclesRemaining: number,
+roundSettingsCollapsed: boolean
+}
 
 ---
 
-# Design Goals
+# Timer State Machine
 
-This architecture prioritizes:
+Action → Rest → Cycle Countdown → Next Action
 
-- small file sizes
-- simple mental model
-- easy refactoring
-- minimal dependencies
-- offline capability
+When cycles reach 0:
+
+* round resets
+* cycles restore
+
+---
+
+# Design Principles
+
+* no frameworks
+* minimal dependencies
+* clear separation
+* small modules
+
+---
+
+# Recent Changes
+
+* replaced start button with actions
+* removed shop system
+* added materials resource
+* shifted to discovery model
+
+---
+
+# Future Architecture
+
+* critter modifiers
+* reward pipelines
+* cloud save layer
+* service worker support

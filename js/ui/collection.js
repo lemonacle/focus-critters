@@ -5,18 +5,26 @@ export function renderCollection(state) {
 
   if (!el) return;
 
-  if (state.owned.length === 0) {
-    el.innerHTML = `<div class="empty">No critters yet. Finish a focus run, earn Nectar, and buy one.</div>`;
+  const stable = state.stable || {};
+  const ownedCritters = critters.filter((c) => (stable[c.id] || 0) > 0);
+
+  if (ownedCritters.length === 0) {
+    el.innerHTML = `<div class="empty">No critters in your stable yet. Try Explore to find one.</div>`;
     return;
   }
 
-  const ownedCritters = critters.filter((c) => state.owned.includes(c.name));
+  el.innerHTML = ownedCritters.map((c) => {
+    const qty = stable[c.id] || 0;
+    const isCompanion = state.activeCompanionId === c.id;
 
-  el.innerHTML = ownedCritters.map((c) => `
-    <div class="critter">
-      <div class="emoji">${c.emoji}</div>
-      <div class="name">${c.name}</div>
-      <div class="owned-badge">Owned</div>
-    </div>
-  `).join("");
+    return `
+      <div class="critter">
+        <div class="emoji">${c.emoji}</div>
+        <div class="name">${c.name}</div>
+        <div class="small">Group: ${c.group}</div>
+        <div class="small">Qty: ${qty}</div>
+        ${isCompanion ? `<div class="owned-badge">Companion</div>` : ``}
+      </div>
+    `;
+  }).join("");
 }

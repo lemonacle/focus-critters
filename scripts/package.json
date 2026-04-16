@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "build:critters": "node scripts/generate-critters-js.mjs"
+  }
+}
